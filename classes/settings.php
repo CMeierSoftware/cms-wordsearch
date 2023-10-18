@@ -6,7 +6,7 @@ class Cmsws_Settings {
     {
         register_setting('cmsws_settings_group', 'cmsws_allowed_chars');
         register_setting('cmsws_settings_group', 'cmsws_allowed_directions');
-        register_setting('cmsws_settings_group', 'cmsws_default_size');
+        register_setting('cmsws_settings_group', 'cmsws_game_size');
         register_setting('cmsws_settings_group', 'cmsws_instructions');
         register_setting('cmsws_settings_group', 'cmsws_congrats');
 
@@ -46,13 +46,13 @@ class Cmsws_Settings {
         );
 
         add_settings_field(
-            'cmsws_default_size',
+            'cmsws_game_size',
             __('Game size', 'cms-wordsearch'),
             array(self::class, 'display_field_dropdown'),
             'cmsws_settings_group',
             'cmsws_game_settings',
             array(
-                'label_for' => 'cmsws_default_size',
+                'label_for' => 'cmsws_game_size',
                 'class' => '',
                 'values' => range(5, 25),
                 'default' => 10

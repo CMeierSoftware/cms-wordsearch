@@ -114,7 +114,7 @@ class Cmsws_Post_Type
 
     public static function display_meta_box_settings($post, $args)
     {
-        $size = (empty($customSize = get_post_meta($post->ID, 'cmsws_size', true))) ? (int) get_option('cmsws_default_size') : (int) $customSize;
+        $size = (empty($customSize = get_post_meta($post->ID, 'cmsws_size', true))) ? (int) get_option('cmsws_game_size') : (int) $customSize;
         $size_options = array();
         for ($i=5; $i < 25; $i++) {
             $size_options[] = sprintf(
