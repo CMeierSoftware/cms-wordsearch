@@ -5,8 +5,21 @@ class Cmsws_Post_Type
     public const POST_TYPE = 'cms_wordsearch';
     public static function enqueue_admin_scripts($hook_suffix)
     {
-        //wp_enqueue_style('wha-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
-        wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array(), false, true);
+        global $post_type, $pagenow;
+
+        // Check if we are on the edit screen of your custom post type
+        if ($post_type === self::POST_TYPE && ($pagenow === 'post.php' ||$pagenow === 'post-new.php')) {
+            //wp_enqueue_style('wha-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
+            wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array('jquery'), false, true);
+
+            $args = array(
+                'text_word_already_in_list' => __('Word is already in the list.','cms-wordsearch'),
+                'text_title_required' => __('A title is required', 'cms-wordsearch'),
+                'word_seperator'=> ',',
+            );
+
+            wp_localize_script('cmsws-edit-post-script', 'cmsws_admin_args', $args);
+        }
     }
 
     public static function register()
@@ -80,22 +93,46 @@ class Cmsws_Post_Type
 
     public static function display_meta_box_words($post, $args)
     {
-        $wordsearch = get_post_meta($post->ID, $args['id'], true);
-        $items = json_decode($wordsearch, true);
+        ///todo: add check for length and allowed words
+        $custom_words = get_post_meta($post->ID, 'cmsws_post_word_collection', true);
+        if (!is_array($custom_words)) {
+            $custom_words = array();
+        }
+        ?>
+            <label for="cmsws_post_word"><?php esc_html_e('Enter Words:', 'cms-wordsearch'); ?></label>
+            <input type="text" id="cmsws_post_word" name="cmsws_post_word">
+            <button type="button" id="add_word"><?php esc_html_e('Add Word', 'cms-wordsearch'); ?></button>
+            <p><?php esc_html_e('Included words:', 'cms-wordsearch'); ?></p>
+            <ol id="entered_words"></ol>
+            <input type="hidden" name="cmsws_post_word_collection" id="cmsws_post_word_collection" value="<?php echo esc_attr(implode(',', $custom_words)); ?>">
+        <?php
     }
 
     public static function display_meta_box_settings($post, $args)
     {
-        $size = (int)get_post_meta($post->ID, 'cmsws_size');
+        $size = (empty($customSize = get_post_meta($post->ID, 'cmsws_size', true))) ? (int) get_option('cmsws_default_size') : (int) $customSize;
         $size_options = array();
         for ($i=5; $i < 25; $i++) {
             $size_options[] = sprintf(
                 '<option %s value="%d">%d*%d</option>',
-                ($size === $i ? "selected" : ""), $i, $i, $i
+                selected($size, $i, false), esc_attr($i), esc_html($i), esc_html($i)
             );
         }
 
         $show_instructions = (int) get_post_meta($post->ID, 'cmsws_show_instructions');
+
+        $word_position = (empty($custom_pos = get_post_meta($post->ID, 'cmsws_word_position', true))) ? 'bottom' : $custom_pos;
+        $positions = [
+            'top' => __('Top', 'cms-wordsearch'),
+            'right' => __('Right', 'cms-wordsearch'),
+            'bottom' => __('Bottom', 'cms-wordsearch'),
+            'left' => __('Left', 'cms-wordsearch')];
+        foreach ($positions as $pos => $label) {
+            $position_options[] = sprintf(
+                '<label style="padding:0 10px;"><input type="radio" name="cmsws_word_position" %s value="%s">%s</label>',
+                checked($word_position, $pos, false), esc_attr($pos), esc_html($label)
+            );
+        }
 
         ?>
             <div style="width:33%; display: inline-block;">
@@ -121,11 +158,12 @@ class Cmsws_Post_Type
             </div>
             <div style="width:33%; display: inline-block;">
                 <h3>
-                    <?php esc_html_e('Size', 'cms-wordsearch');?>
+                    <?php esc_html_e('Word Position', 'cms-wordsearch');?>
                 </h3>
                 <p>
-                    <?php esc_html_e('Choose which size to display', 'cms-wordsearch'); ?>
+                    <?php esc_html_e('Where should the words appear?', 'cms-wordsearch'); ?>
                 </p>
+                <?php echo implode('', $position_options); ?>
             </div>
         <?php
     }
@@ -141,4 +179,27 @@ class Cmsws_Post_Type
             </div>
         <?php
     }
+
+    public static function save_post_meta($post_id)
+    {
+        if (isset($_POST['cmsws_size'])) {
+            $size = sanitize_text_field($_POST['cmsws_size']);
+            update_post_meta($post_id, 'cmsws_size', $size);
+        }
+        if (isset($_POST['cmsws_word_position'])) {
+            $position = sanitize_text_field($_POST['cmsws_word_position']);
+            update_post_meta($post_id, 'cmsws_word_position', $position);
+        }
+        if (isset($_POST['cmsws_post_word_collection'])) {
+            $words = explode(',', sanitize_text_field($_POST['cmsws_post_word_collection']));
+            // Filter out empty and whitespace elements
+            $words = array_filter($words, fn($word) => trim($word) !== '');
+            update_post_meta($post_id, 'cmsws_post_word_collection', $words);
+        }
+        if (isset($_POST['cmsws_show_instructions'])) {
+            $value = sanitize_text_field($_POST['cmsws_show_instructions']);
+            update_post_meta($post_id, 'cmsws_show_instructions', $value);
+        }
+    }
+
 }
