@@ -6,27 +6,26 @@ class Cmsws_Post_Type
     public const SHORTCODE = 'wordsearch-game';
     private const WORD_SEPERATOR = ',';
 
-    public static function enqueue_admin_scripts($hook_suffix)
+    public static function enqueue_admin_scripts(string $hook_suffix): void
     {
-        global $post_type, $pagenow;
+        global $post_type;
 
-        // Check if we are on the edit screen of your custom post type
-        if ($post_type === self::POST_TYPE && ($pagenow === 'post.php' ||$pagenow === 'post-new.php')) {
-            //wp_enqueue_style('wha-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
+        if ($post_type === self::POST_TYPE && ($hook_suffix === 'post.php' || $hook_suffix === 'post-new.php')) {
+            //wp_enqueue_style('cmsws-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
             wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array('jquery'), false, true);
 
             $args = array(
-                'text_word_already_in_list' => __('Word is already in the list.','cms-wordsearch'),
+                'text_word_already_in_list' => __('Word is already in the list.', 'cms-wordsearch'),
                 'text_title_required' => __('A title is required', 'cms-wordsearch'),
                 'text_word_contains_forbidden_char' => __('The word contains forbidden character.', 'cms-wordsearch'),
-                'word_seperator'=> self::WORD_SEPERATOR,
+                'word_seperator' => self::WORD_SEPERATOR,
             );
 
             wp_localize_script('cmsws-edit-post-script', 'cmsws_admin_args', $args);
         }
     }
 
-    public static function register()
+    public static function register(): WP_Error|WP_Post_Type
     {
         $labels = array(
             'name' => __('Wordsearch', 'cms-wordsearch'),
@@ -61,17 +60,17 @@ class Cmsws_Post_Type
             'supports' => array('title', 'author'),
         );
 
-        register_post_type(self::POST_TYPE, $args);
+        return register_post_type(self::POST_TYPE, $args);
     }
 
-    public static function add_meta_boxes()
+    public static function add_meta_boxes(): void
     {
         if (current_user_can('edit_posts')) {
             add_meta_box(
                 'cmsws_post_words',
                 __('Words', 'cms-wordsearch'),
                 array(self::class, 'display_meta_box_words'),
-                array(self::POST_TYPE),
+                self::POST_TYPE,
                 'normal',
                 'core'
             );
@@ -80,7 +79,7 @@ class Cmsws_Post_Type
                 'cmsws_post_settings',
                 __('Settings', 'cms-wordsearch'),
                 array(self::class, 'display_meta_box_settings'),
-                array(self::POST_TYPE),
+                self::POST_TYPE,
                 'normal',
                 'core'
             );
@@ -88,14 +87,14 @@ class Cmsws_Post_Type
                 'cmsws_post_shortcode',
                 __('Shortcode', 'cms-wordsearch'),
                 array(self::class, 'display_meta_box_shortcode'),
-                array(self::POST_TYPE),
+                self::POST_TYPE,
                 'side',
                 'high'
             );
         }
     }
 
-    public static function display_meta_box_words($post, $args)
+    public static function display_meta_box_words(WP_Post $post, array $args): void
     {
         ///todo: add check for length and allowed words
         $custom_words = get_post_meta($post->ID, 'cmsws_post_word_collection', true);
@@ -112,109 +111,189 @@ class Cmsws_Post_Type
         <?php
     }
 
-    public static function display_meta_box_settings($post, $args)
+    public static function display_meta_box_settings(WP_Post $post, array $args): void
     {
-        $size = (empty($customSize = get_post_meta($post->ID, 'cmsws_size', true))) ? (int) get_option('cmsws_game_size') : (int) $customSize;
-        $size_options = array();
-        for ($i=5; $i < 25; $i++) {
-            $size_options[] = sprintf(
-                '<option %s value="%d">%d*%d</option>',
-                selected($size, $i, false), esc_attr($i), esc_html($i), esc_html($i)
-            );
-        }
+        $word_size = (empty($customSize = get_post_meta($post->ID, 'cmsws_size', true))) ? Cmsws_Settings::get_game_size() : (int) $customSize;
+        $posible_sizes = array_combine(range(5, 25), range(5, 25));
 
-        $show_instructions = (int) get_post_meta($post->ID, 'cmsws_show_instructions');
+        $show_instructions = wp_validate_boolean(get_post_meta($post->ID, 'cmsws_show_instructions', true));
 
         $word_position = (empty($custom_pos = get_post_meta($post->ID, 'cmsws_word_position', true))) ? 'bottom' : $custom_pos;
-        $positions = [
+        $possible_positions = array(
             'top' => __('Top', 'cms-wordsearch'),
             'right' => __('Right', 'cms-wordsearch'),
             'bottom' => __('Bottom', 'cms-wordsearch'),
-            'left' => __('Left', 'cms-wordsearch')];
-        foreach ($positions as $pos => $label) {
-            $position_options[] = sprintf(
-                '<label style="padding:0 10px;"><input type="radio" name="cmsws_word_position" %s value="%s">%s</label>',
-                checked($word_position, $pos, false), esc_attr($pos), esc_html($label)
-            );
-        }
+            'left' => __('Left', 'cms-wordsearch')
+        );
+
+        $overwrite_global_settings = wp_validate_boolean(get_post_meta($post->ID, 'cmsws_overwrite_global_settings', true));
+        $word_direction = (empty($tmp = get_post_meta($post->ID, 'cmsws_direction', true))) ? Cmsws_Settings::get_allowed_directions() : $tmp;
+        $allowed_chars = (empty($tmp = get_post_meta($post->ID, 'cmsws_character', true))) ? Cmsws_Settings::get_allowed_chars() : $tmp;
 
         ?>
             <div style="width:33%; display: inline-block;">
-                <h3>
-                    <?php esc_html_e('Size', 'cms-wordsearch');?>
-                </h3>
-                <p>
-                    <?php esc_html_e('Choose which size to display', 'cms-wordsearch'); ?>
-                </p>
-                <select name="cmsws_size">
-                    <?php echo implode('', $size_options);?>
-                </select>
-            </div>
-            <div style="width:33%; display: inline-block;">
-                <h3>
-                    <?php esc_html_e('Display Instructions', 'cms-wordsearch');?>
-                </h3>
-                <p>
-                    <?php esc_html_e('You can edit the instructions in the global settings.', 'cms-wordsearch'); ?>
-                </p>
-                <input type="checkbox" name="cmsws_show_instructions" id="cmsws_show_instructions" value="1" <?php checked($show_instructions, 1); ?>>
+                <h3><?php esc_html_e('Display Instructions', 'cms-wordsearch');?></h3>
+                <p><?php esc_html_e('You can edit the instructions in the global settings.', 'cms-wordsearch'); ?></p>
+                <input type="checkbox" name="cmsws_show_instructions" id="cmsws_show_instructions" <?php checked($show_instructions, 1); ?>>
                 <label for="cmsws_show_instructions"><?php esc_html_e('Show instructions', 'cms-wordsearch') ?></label>
             </div>
             <div style="width:33%; display: inline-block;">
-                <h3>
-                    <?php esc_html_e('Word Position', 'cms-wordsearch');?>
-                </h3>
-                <p>
-                    <?php esc_html_e('Where should the words appear?', 'cms-wordsearch'); ?>
-                </p>
-                <?php echo implode('', $position_options); ?>
+                <h3><?php esc_html_e('Size', 'cms-wordsearch');?></h3>
+                <p><?php esc_html_e('Choose which size to display', 'cms-wordsearch'); ?></p>
+                <?php cmsws_get_template('dropdown.php', 'views/admin/', array('value' => $word_size, 'name' => 'cmsws_size', 'values' => $posible_sizes)); ?>
+
             </div>
+            <div style="width:33%; display: inline-block;">
+                <h3><?php esc_html_e('Word Position', 'cms-wordsearch');?></h3>
+                <p><?php esc_html_e('Where should the words appear?', 'cms-wordsearch'); ?></p>
+                <?php cmsws_get_template('dropdown.php', 'views/admin/', array('value' => $word_position, 'name' => 'cmsws_word_position', 'values' => $possible_positions)); ?>
+            </div>
+            <hr>
+            <div>
+                <h3><?php esc_html_e('Use Global settings', 'cms-wordsearch');?></h3>
+                <p><?php esc_html_e('If you change the global settings and thsi wordsearch does not overwrite the settings, this wordsearch will change due to the global changes.', 'cms-wordsearch'); ?></p>
+                <input type="checkbox" name="cmsws_overwrite_global_settings" id="cmsws_overwrite_global_settings" <?php checked($overwrite_global_settings); ?>>
+                <label for="cmsws_overwrite_global_settings"><?php esc_html_e('Overwrite global settings', 'cms-wordsearch') ?></label>
+                <div id="globalSettingsOverwrite">
+                    <div style="width:33%; display: inline-block;">
+                        <h4><?php esc_html_e('Direction', 'cms-wordsearch');?></h4>
+                        <p><?php esc_html_e('Choose which size to display', 'cms-wordsearch'); ?></p>
+                        <?php cmsws_get_template('compass.php', 'views/admin/', array('value' => $word_direction, 'name' => 'cmsws_direction'));?>
+                    </div>
+                    <div style="width:66%; display: inline-block;">
+                        <h4><?php esc_html_e('Alphabet', 'cms-wordsearch');?></h4>
+                        <p><?php esc_html_e('Select allowed Character', 'cms-wordsearch'); ?></p>
+                        <input type="text" class='large-text' value='<?php echo esc_html($allowed_chars) ?>' name="cmsws_character">
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                #globalSettingsOverwrite {
+                    display: none;
+                }
+                #cmsws_overwrite_global_settings:checked + label + #globalSettingsOverwrite {
+                    display: block;
+                }
+
+
+            </style>
         <?php
     }
 
-    public static function display_meta_box_shortcode($post, $args)
+    public static function display_meta_box_shortcode(WP_Post $post, array $args): void
     {
-        $shortcode = '['.self::SHORTCODE.' id="' . $post->ID . '"]';
+        $shortcode = '[' . self::SHORTCODE . ' id="' . $post->ID . '"]';
         ?>
-            <div style="cursor: pointer">
-                <span class="cmsws-shortcode"><?php echo esc_html($shortcode); ?></span>
+            <div>
+                <span class="cmsws-shortcode cmsws-tooltip"><?php echo esc_html($shortcode); ?></span>
                 <textarea class="js-copytextarea" style="visibility:hidden"><?php echo esc_html($shortcode); ?></textarea>
-                <span class="cmsws-tooltip-copy" style="visibility:hidden"><?php esc_html_e('Copied!', 'cms-wordsearch');?></span>
+                <span class="cmsws-tooltip-copy"><?php esc_html_e('Copied!', 'cms-wordsearch'); ?></span>
             </div>
+            <style>
+                .cmsws-tooltip {
+                    position: relative;
+                    display: inline-block;
+                    cursor: pointer;
+                    border-bottom: 1px dotted black;
+                }
+
+                .cmsws-tooltip-copy {
+                    visibility: hidden;
+                    width: 120px;
+                    background-color: #555;
+                    color: #fff;
+                    text-align: center;
+                    padding: 5px 0;
+                    border-radius: 6px;
+
+                    /* Position the tooltip text */
+                    position: absolute;
+                    z-index: 1;
+                    top: 25px;
+                    left: 50%;
+                    margin-left: -60px;
+
+                    /* Fade in tooltip */
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+
+                /* Tooltip arrow */
+                .cmsws-tooltip-copy::after {
+                    content: "";
+                    position: absolute;
+                    top: -10px;
+                    left: 50%;
+                    margin-left: -5px;
+                    border-width: 5px;
+                    border-style: solid;
+                    border-color: transparent transparent #555 transparent;
+                }
+
+            </style>
         <?php
     }
 
-    public static function save_post_meta($post_id)
+    public static function save_post_meta($post_id): void
     {
-        if (isset($_POST['cmsws_size'])) {
-            $size = sanitize_text_field($_POST['cmsws_size']);
-            update_post_meta($post_id, 'cmsws_size', $size);
-        }
+        $value = isset($_POST['cmsws_show_instructions']);
+        update_post_meta($post_id, 'cmsws_show_instructions', $value ? 'true' : 'false');
+
+        $value = isset($_POST['cmsws_overwrite_global_settings']);
+        update_post_meta($post_id, 'cmsws_overwrite_global_settings', $value ? 'true' : 'false');
+
+
         if (isset($_POST['cmsws_word_position'])) {
             $position = sanitize_text_field($_POST['cmsws_word_position']);
             update_post_meta($post_id, 'cmsws_word_position', $position);
         }
+
         if (isset($_POST['cmsws_post_word_collection'])) {
             $words = explode(self::WORD_SEPERATOR, sanitize_text_field($_POST['cmsws_post_word_collection']));
             // Filter out empty and whitespace elements
             $words = array_filter($words, fn($word) => trim($word) !== '');
             update_post_meta($post_id, 'cmsws_post_word_collection', $words);
         }
-        if (isset($_POST['cmsws_show_instructions'])) {
-            $value = sanitize_text_field($_POST['cmsws_show_instructions']);
-            update_post_meta($post_id, 'cmsws_show_instructions', $value);
+
+        if (isset($_POST['cmsws_size'])) {
+            $value = sanitize_text_field($_POST['cmsws_size']);
+            update_post_meta($post_id, 'cmsws_size', $value);
+        }
+        if (isset($_POST['cmsws_overwrite_global_settings'])) {
+            if (isset($_POST['cmsws_direction'])) {
+                $value = $_POST['cmsws_direction'];
+                update_post_meta($post_id, 'cmsws_direction', $value);
+            }
+            if (isset($_POST['cmsws_character'])) {
+                $value = sanitize_text_field($_POST['cmsws_character']);
+                update_post_meta($post_id, 'cmsws_character', $value);
+            }
         }
     }
 
     public static function do_shortcode(array $args)
     {
-        var_dump($args);
-        $custom_words = get_post_meta($args['id'], 'cmsws_post_word_collection', true);
+        $post = get_post($args['id']);
+        $custom_words = get_post_meta($post->ID, 'cmsws_post_word_collection', true);
         if (!is_array($custom_words)) {
             $custom_words = array();
         }
 
-        $options = array('custom_words' => $custom_words);
+        if (wp_validate_boolean(get_post_meta($post->ID, 'cmsws_overwrite_global_settings', true))) {
+            $allowed_chars = get_post_meta($post->ID, 'cmsws_character', true);
+            $directions = get_post_meta($post->ID, 'cmsws_direction', true);
+        } else {
+            $allowed_chars = Cmsws_Settings::get_allowed_chars();
+            $directions = Cmsws_Settings::get_allowed_directions();
+        }
+
+        $options = array(
+            'custom_words' => $custom_words,
+            'instructions' => get_post_meta($post->ID, 'cmsws_show_instructions', true) ? Cmsws_Settings::get_instructions() : '',
+            'congrats' => Cmsws_Settings::get_congrats(),
+        );
+
         ob_start();
         cmsws_get_template('game.php', 'views/front/', $options);
         return ob_get_clean();
