@@ -3,6 +3,11 @@
 class Cmsws_Post_Type
 {
     public const POST_TYPE = 'cms_wordsearch';
+    public static function enqueue_admin_scripts($hook_suffix)
+    {
+        //wp_enqueue_style('wha-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
+        wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array(), false, true);
+    }
 
     public static function register()
     {
@@ -130,9 +135,9 @@ class Cmsws_Post_Type
         $shortcode = '[game-wordsearch id="' . $post->ID . '" ]';
         ?>
             <div style="cursor: pointer">
-                <span class="wha-shortcode"><?php echo esc_html($shortcode); ?></span>
-                <textarea class="js-copytextarea"><?php echo esc_html($shortcode); ?></textarea>
-                <span class="wha-tooltiptext"><?php esc_html__('Copied!', 'cms-wordsearch');?></span>
+                <span class="cmsws-shortcode"><?php echo esc_html($shortcode); ?></span>
+                <textarea class="js-copytextarea" style="visibility:hidden"><?php echo esc_html($shortcode); ?></textarea>
+                <span class="cmsws-tooltip-copy" style="visibility:hidden"><?php esc_html_e('Copied!', 'cms-wordsearch');?></span>
             </div>
         <?php
     }

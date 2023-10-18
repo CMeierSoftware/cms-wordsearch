@@ -24,6 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('CMSWS_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('CMSWS_PLUGIN_URL', plugins_url('', __FILE__));
 
 
 require_once(CMSWS_PLUGIN_DIR . '/classes/settings.php');
@@ -34,6 +35,7 @@ register_deactivation_hook(__FILE__, 'cmsws_deactivate_plugin');
 
 add_action('init', array(Cmsws_Post_Type::class, 'register'));
 add_action('add_meta_boxes', array(Cmsws_Post_Type::class, 'add_meta_boxes'), 1);
+add_action('admin_enqueue_scripts', array(Cmsws_Post_Type::class, 'enqueue_admin_scripts'));
 
 add_action('admin_init', array(Cmsws_Settings::class, 'register'));
 
