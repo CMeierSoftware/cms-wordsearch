@@ -5,7 +5,7 @@ class Cmsws_Settings {
     public static function register()
     {
         register_setting('cmsws_settings_group', 'cmsws_allowed_chars');
-        register_setting('cmsws_settings_group', 'cmsws_tutorial');
+        register_setting('cmsws_settings_group', 'cmsws_instructions');
         register_setting('cmsws_settings_group', 'cmsws_congrats');
 
         add_settings_section(
@@ -38,20 +38,20 @@ class Cmsws_Settings {
             function () {
                 echo sprintf(
                     '<p>%s</p>',
-                    esc_html__('Create Messages to improve the gameplay', 'cms-wordsearch')
+                    esc_html__('Create Messages to improve the gameplay.', 'cms-wordsearch')
                 );
             },
             'cmsws_settings_group'
         );
 
         add_settings_field(
-            'cmsws_tutorial',
+            'cmsws_instructions',
             __('Tutorial (How to play)', 'cms-wordsearch'),
             array(self::class, 'display_field_tinymce'),
             'cmsws_settings_group',
             'cmsws_messages',
             array(
-                'label_for' => 'cmsws_tutorial',
+                'label_for' => 'cmsws_instructions',
                 'class' => '',
             )
         );
@@ -113,7 +113,6 @@ class Cmsws_Settings {
 
             <div class="wrap">
                 <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-
                     <form action="options.php" method="post">
                     <?php
                         do_settings_sections('cmsws_settings_group');
