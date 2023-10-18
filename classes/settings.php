@@ -5,13 +5,14 @@ class Cmsws_Settings {
     public static function register()
     {
         register_setting('cmsws_settings_group', 'cmsws_allowed_chars');
+        register_setting('cmsws_settings_group', 'cmsws_allowed_directions');
         register_setting('cmsws_settings_group', 'cmsws_default_size');
         register_setting('cmsws_settings_group', 'cmsws_instructions');
         register_setting('cmsws_settings_group', 'cmsws_congrats');
 
         add_settings_section(
             'cmsws_game_settings',
-            __('Game Settings', 'cms-wordsearch'),
+            __('Global Game Settings', 'cms-wordsearch'),
             function(){echo sprintf(
                     '<p>%s</p>',
                     esc_html__( "Define the behavior when generating new wordsearchs.", 'cms-wordsearch' )
@@ -33,8 +34,20 @@ class Cmsws_Settings {
         );
 
         add_settings_field(
+            'cmsws_allowed_directions',
+            __('Allowed Directions', 'cms-wordsearch'),
+            array(self::class, 'display_field_allowed_directions'),
+            'cmsws_settings_group',
+            'cmsws_game_settings',
+            array(
+                'label_for' => 'cmsws_allowed_directions',
+                'class' => '',
+            )
+        );
+
+        add_settings_field(
             'cmsws_default_size',
-            __('Default size', 'cms-wordsearch'),
+            __('Game size', 'cms-wordsearch'),
             array(self::class, 'display_field_dropdown'),
             'cmsws_settings_group',
             'cmsws_game_settings',
@@ -108,6 +121,14 @@ class Cmsws_Settings {
             )
         );
     }
+
+    public static function display_field_allowed_directions(array $args)
+    {
+        $value = get_option($args['label_for'], array('south','west'));
+
+        cmsws_get_template('compass.php', 'views/admin/', array('value' => $value, 'name' => $args['label_for']));
+    }
+
     public static function display_field_dropdown(array $args)
     {
         $value = (int) get_option($args['label_for'], $args['default']);
