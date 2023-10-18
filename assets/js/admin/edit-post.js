@@ -32,6 +32,11 @@ jQuery(document).ready(function ($) {
     function addWordToList(newWord) {
         if (!newWord) return;
 
+        if (newWord.includes(cmsws_admin_args.word_seperator)) {
+            alert(cmsws_admin_args.text_word_contains_forbidden_char);
+            return;
+        }
+
         let customWords = getExistingWords();
 
         if (customWords.indexOf(newWord) === -1) {

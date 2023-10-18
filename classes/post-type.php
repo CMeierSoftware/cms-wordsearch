@@ -3,6 +3,8 @@
 class Cmsws_Post_Type
 {
     public const POST_TYPE = 'cms_wordsearch';
+    public const SHORTCODE = 'wordsearch_game';
+    private const WORD_SEPERATOR = ',';
     public static function enqueue_admin_scripts($hook_suffix)
     {
         global $post_type, $pagenow;
@@ -15,7 +17,8 @@ class Cmsws_Post_Type
             $args = array(
                 'text_word_already_in_list' => __('Word is already in the list.','cms-wordsearch'),
                 'text_title_required' => __('A title is required', 'cms-wordsearch'),
-                'word_seperator'=> ',',
+                'text_word_contains_forbidden_char' => __('The word contains forbidden character.', 'cms-wordsearch'),
+                'word_seperator'=> self::WORD_SEPERATOR,
             );
 
             wp_localize_script('cmsws-edit-post-script', 'cmsws_admin_args', $args);
@@ -170,7 +173,7 @@ class Cmsws_Post_Type
 
     public static function display_meta_box_shortcode($post, $args)
     {
-        $shortcode = '[game-wordsearch id="' . $post->ID . '" ]';
+        $shortcode = '['.self::SHORTCODE.' id="' . $post->ID . '" ]';
         ?>
             <div style="cursor: pointer">
                 <span class="cmsws-shortcode"><?php echo esc_html($shortcode); ?></span>
@@ -191,7 +194,7 @@ class Cmsws_Post_Type
             update_post_meta($post_id, 'cmsws_word_position', $position);
         }
         if (isset($_POST['cmsws_post_word_collection'])) {
-            $words = explode(',', sanitize_text_field($_POST['cmsws_post_word_collection']));
+            $words = explode(self::WORD_SEPERATOR, sanitize_text_field($_POST['cmsws_post_word_collection']));
             // Filter out empty and whitespace elements
             $words = array_filter($words, fn($word) => trim($word) !== '');
             update_post_meta($post_id, 'cmsws_post_word_collection', $words);
