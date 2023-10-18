@@ -3,8 +3,9 @@
 class Cmsws_Post_Type
 {
     public const POST_TYPE = 'cms_wordsearch';
-    public const SHORTCODE = 'wordsearch_game';
+    public const SHORTCODE = 'wordsearch-game';
     private const WORD_SEPERATOR = ',';
+
     public static function enqueue_admin_scripts($hook_suffix)
     {
         global $post_type, $pagenow;
@@ -173,7 +174,7 @@ class Cmsws_Post_Type
 
     public static function display_meta_box_shortcode($post, $args)
     {
-        $shortcode = '['.self::SHORTCODE.' id="' . $post->ID . '" ]';
+        $shortcode = '['.self::SHORTCODE.' id="' . $post->ID . '"]';
         ?>
             <div style="cursor: pointer">
                 <span class="cmsws-shortcode"><?php echo esc_html($shortcode); ?></span>
@@ -205,4 +206,17 @@ class Cmsws_Post_Type
         }
     }
 
+    public static function do_shortcode(array $args)
+    {
+        var_dump($args);
+        $custom_words = get_post_meta($args['id'], 'cmsws_post_word_collection', true);
+        if (!is_array($custom_words)) {
+            $custom_words = array();
+        }
+
+        $options = array('custom_words' => $custom_words);
+        ob_start();
+        cmsws_get_template('game.php', 'views/front/', $options);
+        return ob_get_clean();
+    }
 }

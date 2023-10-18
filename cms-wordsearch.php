@@ -38,6 +38,8 @@ add_action('add_meta_boxes', array(Cmsws_Post_Type::class, 'add_meta_boxes'), 1)
 add_action('admin_enqueue_scripts', array(Cmsws_Post_Type::class, 'enqueue_admin_scripts'));
 add_action('save_post', array(Cmsws_Post_Type::class, 'save_post_meta'));
 
+add_shortcode(Cmsws_Post_Type::SHORTCODE, array(Cmsws_Post_Type::class, 'do_shortcode'));
+
 add_action('admin_init', array(Cmsws_Settings::class, 'register'));
 
 add_action('admin_menu', 'cmsws_create_admin_menu');
@@ -63,4 +65,30 @@ function cmsws_create_admin_menu()
         'cms-wordsearch-settings',
         array(Cmsws_Settings::class, 'display_page')
     );
+}
+
+/**
+ * Get other templates (e.g. my account) passing attributes and including the file.
+ *
+ * @param string $template_name Template Name.
+ * @param array  $args Extra arguments(default: array()).
+ * @param string $template_path Path of template provided (default: '').
+ * @param string $default_path  Default path of template provided(default: '').
+ */
+function cmsws_get_template($template_name, $template_path, $args = array())
+{
+    if (!empty($args) && is_array($args)) {
+        extract($args); // phpcs:ignore
+    }
+
+    $located = CMSWS_PLUGIN_DIR . $template_path . $template_name;
+
+    if (!file_exists($located)) {
+        echo ($located);
+        _doing_it_wrong(__FUNCTION__, sprintf('<code>%s</code> does not exist.', esc_html($located)), '1.0');
+
+        return;
+    }
+
+    include $located;
 }
