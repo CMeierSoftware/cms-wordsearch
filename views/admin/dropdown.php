@@ -1,4 +1,9 @@
 <?php
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
 foreach ($values as $key => $label) {
     $dd_options[] = sprintf(
         '<option %s value="%s">%s</option>',
