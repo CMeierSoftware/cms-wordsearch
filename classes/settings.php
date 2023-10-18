@@ -5,6 +5,7 @@ class Cmsws_Settings {
     public static function register()
     {
         register_setting('cmsws_settings_group', 'cmsws_allowed_chars');
+        register_setting('cmsws_settings_group', 'cmsws_default_size');
         register_setting('cmsws_settings_group', 'cmsws_instructions');
         register_setting('cmsws_settings_group', 'cmsws_congrats');
 
@@ -31,6 +32,19 @@ class Cmsws_Settings {
             )
         );
 
+        add_settings_field(
+            'cmsws_default_size',
+            __('Default size', 'cms-wordsearch'),
+            array(self::class, 'display_field_dropdown'),
+            'cmsws_settings_group',
+            'cmsws_game_settings',
+            array(
+                'label_for' => 'cmsws_default_size',
+                'class' => '',
+                'values' => range(5, 25),
+                'default' => 10
+            )
+        );
 
         add_settings_section(
             'cmsws_messages',
@@ -93,6 +107,24 @@ class Cmsws_Settings {
                 'tinymce' => true
             )
         );
+    }
+    public static function display_field_dropdown(array $args)
+    {
+        $value = (int) get_option($args['label_for'], $args['default']);
+        $dd_options = array();
+        foreach ($args['values'] as $option) {
+            $dd_options[] = sprintf(
+                '<option %s value="%d">%d</option>',
+                ($value === $option ? "selected" : ""),
+                $option,
+                $option
+            );
+        }
+        ?>
+            <select name="<?php echo esc_html($args['label_for']) ?>">
+                <?php echo implode('', $dd_options);?>
+            </select>
+        <?php
     }
 
     public static function display_page()
