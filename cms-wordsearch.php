@@ -6,9 +6,9 @@
  */
 
 /*
- * Plugin Name: CMS Wordsearch
- * Plugin URI:
- * Description:
+ * Plugin Name: Wordsearch
+ * Plugin URI: https://github.com/CMeierSoftware/cms-wordsearch.git
+ * Description: A Wordsearch, word find, word seek, word sleuth or mystery word puzzle is a word game that consists of the letters of words placed in a grid, which usually has a rectangular or square shape.
  * Author: CMeier Software
  * Version: 0.0.1
  * Author URI: https://cmeier-software.com/
@@ -36,6 +36,7 @@ register_deactivation_hook(__FILE__, 'cmsws_deactivate_plugin');
 add_action('init', array(Cmsws_Post_Type::class, 'register'));
 add_action('add_meta_boxes', array(Cmsws_Post_Type::class, 'add_meta_boxes'), 1);
 add_action('admin_enqueue_scripts', array(Cmsws_Post_Type::class, 'enqueue_admin_scripts'));
+add_action('wp_enqueue_scripts', array(Cmsws_Post_Type::class, 'enqueue_front_scripts'));
 add_action('save_post', array(Cmsws_Post_Type::class, 'save_post_meta'));
 
 add_shortcode(Cmsws_Post_Type::SHORTCODE, array(Cmsws_Post_Type::class, 'do_shortcode'));

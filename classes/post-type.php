@@ -9,7 +9,6 @@ class Cmsws_Post_Type
     public static function enqueue_admin_scripts(string $hook_suffix): void
     {
         global $post_type;
-
         if ($post_type === self::POST_TYPE && ($hook_suffix === 'post.php' || $hook_suffix === 'post-new.php')) {
             //wp_enqueue_style('cmsws-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
             wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array('jquery'), false, true);
@@ -22,6 +21,21 @@ class Cmsws_Post_Type
             );
 
             wp_localize_script('cmsws-edit-post-script', 'cmsws_admin_args', $args);
+        }
+    }
+
+    public static function enqueue_front_scripts()
+    {
+        global $post;
+        if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, self::SHORTCODE)) {
+            wp_enqueue_script('cmsws-wordsearch-script', CMSWS_PLUGIN_URL . '/assets/js/front/wordsearch.js', array('jquery'), false, true);
+            wp_enqueue_style('cms-wordsearch-style', CMSWS_PLUGIN_URL .'/assets/css/front/wordsearch.css', array(), false);
+
+            $args = array(
+                'word_seperator' => self::WORD_SEPERATOR,
+            );
+
+            wp_localize_script('cmsws-wordsearch-script', 'cmsws_front_args', $args);
         }
     }
 
@@ -275,27 +289,24 @@ class Cmsws_Post_Type
     public static function do_shortcode(array $args)
     {
         $post = get_post($args['id']);
-        $custom_words = get_post_meta($post->ID, 'cmsws_post_word_collection', true);
-        if (!is_array($custom_words)) {
-            $custom_words = array();
-        }
+
+        $settings['custom_words'] = implode(self::WORD_SEPERATOR, get_post_meta($post->ID, 'cmsws_post_word_collection', true));
 
         if (wp_validate_boolean(get_post_meta($post->ID, 'cmsws_overwrite_global_settings', true))) {
-            $allowed_chars = get_post_meta($post->ID, 'cmsws_character', true);
-            $directions = get_post_meta($post->ID, 'cmsws_direction', true);
+            $settings['allowed_chars'] = get_post_meta($post->ID, 'cmsws_character', true);
+            $settings['directions'] = get_post_meta($post->ID, 'cmsws_direction', true);
         } else {
-            $allowed_chars = Cmsws_Settings::get_allowed_chars();
-            $directions = Cmsws_Settings::get_allowed_directions();
+            $settings['allowed_chars'] = Cmsws_Settings::get_allowed_chars();
+            $settings['directions'] = Cmsws_Settings::get_allowed_directions();
         }
-
-        $options = array(
-            'custom_words' => $custom_words,
-            'instructions' => get_post_meta($post->ID, 'cmsws_show_instructions', true) ? Cmsws_Settings::get_instructions() : '',
-            'congrats' => Cmsws_Settings::get_congrats(),
-        );
+        $settings['directions'] = implode(self::WORD_SEPERATOR, $settings['directions']);
+        $settings['size'] = get_post_meta($post->ID, 'cmsws_size', true);
+        $settings['word_list_position'] = get_post_meta($post->ID, 'cmsws_word_position', true);
+        $settings['instructions'] = get_post_meta($post->ID, 'cmsws_show_instructions', true) ? Cmsws_Settings::get_instructions() : '';
+        $settings['congrats'] = Cmsws_Settings::get_congrats();
 
         ob_start();
-        cmsws_get_template('game.php', 'views/front/', $options);
+        cmsws_get_template('game.php', 'views/front/', $settings);
         return ob_get_clean();
     }
 }

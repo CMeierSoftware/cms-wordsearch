@@ -1,0 +1,170 @@
+#cms_wordsearch_container {
+    width: 100%;
+    flex-wrap: wrap;
+    display: flex;
+}
+
+#cms_wordsearch_container.cmsws-pos-right {
+    align-items: stretch;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#cms_wordsearch_container.cmsws-pos-left {
+    align-items: stretch;
+    flex-direction: row-reverse;
+    justify-content: center;
+}
+
+#cms_wordsearch_container.cmsws-pos-top {
+    align-items: center;
+    flex-direction: column-reverse;
+}
+
+#cms_wordsearch_container.cmsws-pos-bottom {
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Modal window */
+.cmsws-modal-overlay{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    background: #0000007a;
+    left: 0;
+    z-index: 100;
+    right: 0;
+}
+
+.cmsws-modal-wrap {
+    position: fixed;
+    top: 100%;
+    z-index: 100;
+
+    background: #fefefe;
+    border: #333333 solid 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    margin: 15px;
+
+    max-width: 600px;
+    width: 100%;
+    -webkit-transform: translate(0, -500%);
+    -ms-transform: translate(0, -500%);
+    transform: translate(0, -500%);
+    -webkit-transition: -webkit-transform 0.3s ease-out;
+    -moz-transition: -moz-transform 0.3s ease-out;
+    -o-transition: -o-transform 0.3s ease-out;
+    transition: transform 0.3s ease-out;
+}
+
+.cmsws-modal-header {
+    padding: 15px 20px;
+    position: relative;
+}
+
+.cmsws-modal-header .cmsws-btn-close {
+    color: #aaaaaa;
+    font-size: 20px;
+    text-decoration: none;
+    position: absolute;
+    right: 12px;
+    float: right;
+    top: 1px;
+}
+
+.cmsws-modal-header .cmsws-btn-close:hover {
+    color: #919191;
+}
+
+.cmsws-modal-body {
+    padding: 20px;
+}
+
+/* game container */
+
+/* used word list*/
+#UsedWordsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    flex-direction: row;
+    align-content: baseline;
+}
+.cmsws-pos-right #UsedWordsContainer {
+    height: 100%;
+    justify-content: right;
+    padding: 40px 0 40px 40px;
+}
+.cmsws-pos-left #UsedWordsContainer {
+    height: 100%;
+    justify-content: left;
+    padding: 40px 40px 40px 0;
+}
+.cmsws-pos-top #UsedWordsContainer,
+.cmsws-pos-bottom #UsedWordsContainer {
+    padding: 40px 0;
+    justify-content: center;
+    width: 100%;
+}
+
+.used-word-list {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 0;
+    height: 100%;
+    justify-content: center;
+    align-content: baseline;
+}
+
+.cmsws-pos-left .used-word-list,
+.cmsws-pos-right .used-word-list{
+    flex-direction: column;
+}
+
+.used-word-list .word-box {
+    padding: 8px 20px;
+    margin: 5px;
+    background: white;
+    border: 1px solid black;
+    color: black;
+    font-size: small;
+}
+
+/*letter grid */
+#letterGridContainer {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1.5em;
+}
+
+.cmsws-table {
+    display: block;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    line-height: normal;
+}
+.cmsws-table .cmsws-row {
+    text-align: center;
+}
+.cmsws-table .cmsws-cell {
+    z-index: 6;
+    border: 1px solid #d3d3d361;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+    font-size: 30px;
+    position: relative;
+    transition: background 0.9s;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
