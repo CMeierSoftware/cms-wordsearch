@@ -39,7 +39,7 @@
 
 .cmsws-modal-wrap {
     position: fixed;
-    top: 100%;
+    top: 150px;
     z-index: 100;
 
     background: #fefefe;
@@ -50,9 +50,6 @@
 
     max-width: 600px;
     width: 100%;
-    -webkit-transform: translate(0, -500%);
-    -ms-transform: translate(0, -500%);
-    transform: translate(0, -500%);
     -webkit-transition: -webkit-transform 0.3s ease-out;
     -moz-transition: -moz-transform 0.3s ease-out;
     -o-transition: -o-transform 0.3s ease-out;
@@ -82,6 +79,9 @@
     padding: 20px;
 }
 
+.cmsws-modal-footer {
+    padding: 15px 20px;
+}
 /* game container */
 
 /* used word list*/
@@ -102,6 +102,7 @@
     justify-content: left;
     padding: 40px 40px 40px 0;
 }
+
 .cmsws-pos-top #UsedWordsContainer,
 .cmsws-pos-bottom #UsedWordsContainer {
     padding: 40px 0;
@@ -123,7 +124,6 @@
 .cmsws-pos-right .used-word-list{
     flex-direction: column;
 }
-
 .used-word-list .word-box {
     padding: 8px 20px;
     margin: 5px;
@@ -131,6 +131,11 @@
     border: 1px solid black;
     color: black;
     font-size: small;
+}.used-word-list .word-box.found {
+    background: white;
+    border: 1px solid red;
+    color: red;
+    text-decoration: line-through;
 }
 
 /*letter grid */
@@ -167,4 +172,32 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+/* cells*/
+.cmsws-table .cmsws-cell:hover {
+    transition: background 0.2s;
+    background: rgba(255, 69, 0, 0.2)!important;
+}
+.cmsws-table .cmsws-cell.cmsws-clicked {
+    background: rgba(255, 69, 0, 0.5) !important;
+}
+.cmsws-table .cmsws-cell.cmsws-on-path {
+    transition: background 0.2s;
+    background: rgba(255, 69, 0, 0.9) !important;
+}
+.cmsws-table .cmsws-cell.cmsws-is-word {
+    transition: background 0.2s;
+}
+.cmsws-table .cmsws-cell.cmsws-color1 {
+    background: rgba(5, 127, 27, 0.71);
+}
+.cmsws-table .cmsws-cell.cmsws-color2 {
+    background: rgba(5, 99, 127, 0.71);
+}
+.cmsws-table .cmsws-cell.cmsws-color3 {
+    background: rgba(127, 5, 123, 0.71);
+}
+.cmsws-table .cmsws-cell.cmsws-color4 {
+    background: rgba(198, 136, 5, 0.71);
 }

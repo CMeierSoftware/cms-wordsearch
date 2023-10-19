@@ -16,6 +16,11 @@
         this.onPath = false;
         this.letter = null;
         this.onCorrectPath = false;
+
+        this.$ = $('<div></div>');
+        this.$.addClass('cmsws-cell');
+        this.$.data('x', this.x);
+        this.$.data('y', this.y);
     }
 
     Cell.prototype.willFitLetter = function (letter) {
@@ -28,6 +33,11 @@
             return this.letter = allowed_chars[i];
         }
     };
+
+    Cell.prototype.toHtml = function () {
+        this.$.text(this.letter || "");
+        return this.$;
+    }
 
     function LetterGrid(wordList = [], allowed_chars = '', directions = [], size = 10, maxWords = 10) {
         if (size === null || size === undefined ||
@@ -104,13 +114,17 @@
             return Math.floor(dimension - length) - 1;
         };
 
-        const startX = getRandomStart(dirX, word.length, this.width);
-        const startY = getRandomStart(dirY, word.length, this.height);
+        const start = {
+            x: getRandomStart(dirX, word.length, this.width),
+            y: getRandomStart(dirY, word.length, this.height),
+        };
 
-        const endX = startX + dirX * (word.length - 1);
-        const endY = startY + dirY * (word.length - 1);
+        const end = {
+            x: start.x + dirX * (word.length - 1),
+            y: start.y + dirY * (word.length - 1),
+        };
 
-        const path = this._getPath([startX, startY], [endX, endY]);
+        const path = this.getPath(start, end);
 
         if (path === null) {
             return false;
@@ -131,13 +145,13 @@
         return true;
     };
 
-    LetterGrid.prototype._getPath = function (start, end) {
+    LetterGrid.prototype.getPath = function (start, end) {
         const cellPath = [];
 
-        const startX = start[0];
-        const startY = start[1];
-        const endX = end[0];
-        const endY = end[1];
+        const startX = start.x;
+        const startY = start.y;
+        const endX = end.x;
+        const endY = end.y;
 
         const diffX = endX - startX;
         const diffY = endY - startY;
@@ -164,15 +178,44 @@
         return null;
     };
 
+    LetterGrid.prototype.isPathAllowed = function (start, end) {
+        const diffX = Math.abs(end.x - start.x);
+        const diffY = Math.abs(end.y - start.y);
+
+        // Check if the path is diagonal, horizontal, or vertical
+        if (diffX === diffY || diffX === 0 || diffY === 0) {
+            return true; // Path is allowed
+        } else {
+            return false; // Path is not allowed
+        }
+    };
+
+    LetterGrid.prototype.isPathAWord = function (path, colorId) {
+        let selectedWord = '';
+        for (const cell of path) {
+            if (cell.letter !== null) {
+                selectedWord += cell.letter;
+            }
+        }
+        if (this.used_words.includes(selectedWord)) {
+            path.forEach(cell => {
+                cell.$.addClass('cmsws-is-word');
+                cell.$.addClass('cmsws-color' + colorId);
+            });
+            const word = $('#cmsws-'+selectedWord);
+            word.addClass('found');
+            return true;
+        }
+        return false;
+    };
+
     LetterGrid.prototype.getHtmlTable = function() {
         const table = $('<div class="cmsws-table"></div>');
         this.cells.forEach(letterRow => {
             const row = $('<div class="cmsws-row"></div>');
 
             letterRow.forEach(cell => {
-                const tableCell = $('<div class="cmsws-cell"></div>');
-                tableCell.text(cell.letter || "");
-                row.append(tableCell);
+                row.append(cell.toHtml());
             });
 
             table.append(row);
@@ -183,14 +226,16 @@
     LetterGrid.prototype.getUsedWordsList = function() {
         const row = $('<div id="usedWords" class="used-word-list"></div>');
         this.used_words.forEach(word => {
-            const wordBox = $('<div class="word-box">' + word + '</div>');
+            const wordBox = $('<div></div>');
+            wordBox.addClass("word-box");
+            wordBox.text(word);
+            wordBox.attr('id', 'cmsws-' + word)
             row.append(wordBox);
         });
         return row;
     };
 
     let cms_wordsearch = {
-
         $ws_container: $('#cms_wordsearch_container'),
         words: $('#cmsws_custom_words').val().split(cmsws_front_args.word_seperator),
         allowed_chars: $('#cmsws_allowed_chars').val().trim(),
@@ -198,6 +243,8 @@
         word_list_position: $('#cmsws_field_word_list_position').val().trim(),
         directions: Array(),
         letterGrid: null,
+        firstClickedCell: null,
+        found_words: 0,
 
         init: function () {
             const MAX_LENGTH = this.field_size;
@@ -237,14 +284,15 @@
                         break;
                 }
             });
-
-            this.directions = shuffleArray(this.directions);
-            this.allowed_chars = shuffleArray(this.allowed_chars);
-            this.createGame();
-            const a = 10;
         },
 
-        createGame: function() {
+        newGame: function () {
+            this.directions = shuffleArray(this.directions);
+            this.allowed_chars = shuffleArray(this.allowed_chars);
+
+            this.letterGrid = null;
+            this.firstClickedCell = null;
+            this.found_words = 0;
             // Remove the old container if it exists
             $('#letterGridContainer').remove();
             $('#UsedWordsContainer').remove();
@@ -257,23 +305,81 @@
             this.$ws_container.append(newContainer);
 
             newContainer = $('<div id="UsedWordsContainer"></div>');
-            //const list = $('<div id="asd" class="used-word-list" style="width:100px;height:100px;background-color:pink"></div>');
             const list = this.letterGrid.getUsedWordsList();
             newContainer.append(list);
             this.$ws_container.append(newContainer);
+
+            table.on('click', '.cmsws-cell', cms_wordsearch._onClickCell.bind());
+            table.on('mouseenter', '.cmsws-cell', cms_wordsearch._togglePath.bind());
+            table.on('mouseleave', '.cmsws-cell', cms_wordsearch._togglePath.bind());
         },
 
-        wordFromPath: function (path) {
-            if (!path) return '';
-
-            return path.map(cell => cell.letter).join('');
+        _fetchCell: function (target) {
+            const $cell = $(target);
+            let x = $cell.data('x');
+            let y = $cell.data('y');
+            return cms_wordsearch.letterGrid.cells[y][x];
         },
 
+        _onClickCell: function(e) {
+            const cell = cms_wordsearch._fetchCell(e.currentTarget);
+            if (cms_wordsearch.firstClickedCell === null) {
+                // If no cell has been clicked previously, store the current cell
+                cms_wordsearch.firstClickedCell = cell;
+                cell.$.addClass('cmsws-clicked');
+            } else if (cms_wordsearch.firstClickedCell === cell) {
+                // Clicked the same cell again
+                cms_wordsearch.firstClickedCell = null;
+                cell.$.removeClass('cmsws-clicked');
+            } else {
+                if (cms_wordsearch.letterGrid.isPathAllowed(cms_wordsearch.firstClickedCell, cell)) {
+                    const path = cms_wordsearch.letterGrid.getPath(cms_wordsearch.firstClickedCell, cell);
 
+                    if (cms_wordsearch.letterGrid.isPathAWord(path, (cms_wordsearch.found_words % 4) + 1)) {
+                        cms_wordsearch.found_words++;
+                    }
+
+                    if (cms_wordsearch.found_words >= cms_wordsearch.letterGrid.used_words.length) {
+                        $('#cmws-modal').css('display', 'block');
+                    }
+
+                    path.forEach(cell => {
+                        cell.$.removeClass('cmsws-on-path');
+                    });
+
+                    cms_wordsearch.firstClickedCell.$.removeClass('cmsws-clicked');
+                    cms_wordsearch.firstClickedCell = null;
+                };
+            }
+        },
+
+        _togglePath: function (e) {
+            if (cms_wordsearch.firstClickedCell === null) {
+                return;
+            }
+            const cell = cms_wordsearch._fetchCell(e.currentTarget);
+            if (cell === cms_wordsearch.firstClickedCell) {
+                return;
+            }
+
+            if (cms_wordsearch.letterGrid.isPathAllowed(cms_wordsearch.firstClickedCell, cell)) {
+                const path = cms_wordsearch.letterGrid.getPath(cms_wordsearch.firstClickedCell, cell);
+
+                path.forEach(cell => {
+                    cell.$.toggleClass('cmsws-on-path');
+                })
+            };
+        },
     };
 
     $(document).ready(function () {
         cms_wordsearch.init();
+        cms_wordsearch.newGame();
+
+        $('#btn-new-game').on('click', function () {
+            $('#cmws-modal').css('display', 'none');
+            cms_wordsearch.newGame();
+        })
 
         //disable search on page (Ctrl+F)
         window.addEventListener("keydown", function (e) {
