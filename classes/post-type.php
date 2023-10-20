@@ -63,7 +63,7 @@ class Cmsws_Post_Type
             'labels' => $labels,
             'description' => __('Holds the wordsearch and their data.', 'cms-wordsearch'),
             'menu_position' => 5,
-            'menu_icon' => 'dashicons-editor-help',
+            'menu_icon' => 'dashicons-games',
             'public' => true,
             'publicly_queryable' => false,
             'show_ui' => true,
