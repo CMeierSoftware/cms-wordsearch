@@ -14,6 +14,11 @@
         return array;
     }
 
+    /**
+     *
+     * @param {*} max
+     * @returns a random number betwen 0 (inclusive) and max(exclusive)
+     */
     function getRandomIndex(max) {
         const cryptoArray = new Uint32Array(1);
         crypto.getRandomValues(cryptoArray);
@@ -94,7 +99,7 @@
         }
 
         const getRandomStart = (dir, length, dimension) => {
-            const number = getRandomIndex((dimension - length));
+            const number = getRandomIndex((dimension - length + 1));
             if (dir === -1) {
                 return dimension - number;
             }
@@ -251,7 +256,8 @@
         this.found_words = 0;
 
         // Remove the old container if it exists
-        this.$ws_container.find('#letterGridContainer', '#UsedWordsContainer').remove();
+        this.$ws_container.find('#letterGridContainer').remove();
+        this.$ws_container.find('#UsedWordsContainer').remove();
 
         this.letterGrid = new LetterGrid(this.words, this.allowed_chars, this.directions, this.field_size);
 

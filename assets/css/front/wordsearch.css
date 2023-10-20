@@ -4,6 +4,8 @@
     display: flex;
     max-width: unset;
     font-size: 33px;
+    padding: 15px;
+    position: relative;
 }
 
 @media (max-width: 374px) {
@@ -49,18 +51,21 @@
 
 /* Modal window */
 .cmsws-modal-overlay{
-    position: fixed;
+    position: absolute;
     top: 0;
     bottom: 0;
-    background: #0000007a;
     left: 0;
-    z-index: 100;
     right: 0;
+    background: #0000007a;
+    z-index: 100;
+    border-radius: 15px;
 }
 
 .cmsws-modal-wrap {
-    position: fixed;
-    top: 150px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 100;
 
     background: #fefefe;
@@ -99,7 +104,7 @@
 .cmsws-modal-body {
     padding: 20px;
 }
-.cmsws-modal-body button {
+.cmsws-modal-wrap button {
     padding: 5px 15px;
 }
 .cmsws-modal-footer {
@@ -183,6 +188,7 @@
 .cmsws-table .cmsws-cell {
     z-index: 6;
     border: 1px solid #d3d3d361;
+    background-color: whitesmoke;
     display: table-cell;
     text-align: center;
     vertical-align: middle;
