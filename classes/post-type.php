@@ -10,7 +10,7 @@ class Cmsws_Post_Type
     {
         global $post_type;
         if ($post_type === self::POST_TYPE && ($hook_suffix === 'post.php' || $hook_suffix === 'post-new.php')) {
-            wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array('jquery'), false, true);
+            wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array('jquery'), CMSWS_VERSION, true);
 
             $args = array(
                 'text_word_already_in_list' => __('Word is already in the list.', 'cms-wordsearch'),
@@ -29,8 +29,8 @@ class Cmsws_Post_Type
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, self::SHORTCODE)) {
             $minify = current_user_can('administrator') ? '' : '.min';
-            wp_enqueue_script('cmsws-wordsearch-script', CMSWS_PLUGIN_URL . "/assets/js/front/wordsearch$minify.js", array('jquery'), false, true);
-            wp_enqueue_style('cms-wordsearch-style', CMSWS_PLUGIN_URL ."/assets/css/front/wordsearch$minify.css", array(), false);
+            wp_enqueue_script('cmsws-wordsearch-script', CMSWS_PLUGIN_URL . "/assets/js/front/wordsearch$minify.js", array('jquery'), CMSWS_VERSION, true);
+            wp_enqueue_style('cms-wordsearch-style', CMSWS_PLUGIN_URL ."/assets/css/front/wordsearch$minify.css", array(), CMSWS_VERSION);
 
             $args = array(
                 'word_seperator' => self::WORD_SEPERATOR,

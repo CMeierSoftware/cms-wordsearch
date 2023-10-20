@@ -2,7 +2,7 @@
 
 /**
  * @package CMS Wordsearch
- * @version 1.0.0
+ * @version 1.0.4
  */
 
 /*
@@ -10,7 +10,7 @@
  * Plugin URI: https://github.com/CMeierSoftware/cms-wordsearch.git
  * Description: A Wordsearch, word find, word seek, word sleuth or mystery word puzzle is a word game that consists of the letters of words placed in a grid, which usually has a rectangular or square shape.
  * Author: CMeier Software
- * Version: 1.0.0
+ * Version: 1.0.4
  * Author URI: https://cmeier-software.com/
  * Requires at least: 6.0
  * Requires PHP: 8.1
@@ -25,6 +25,7 @@ if (!defined('ABSPATH')) {
 
 define('CMSWS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CMSWS_PLUGIN_URL', plugins_url('', __FILE__));
+define('CMSWS_VERSION', '1.0.4');
 
 
 require_once(CMSWS_PLUGIN_DIR . '/classes/settings.php');
