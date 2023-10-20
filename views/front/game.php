@@ -10,26 +10,26 @@ if (!empty($instructions)) {
 }
 ?>
 
-<div class="cms-wordsearch" id="cms_wordsearch_container"></div>
+<div class="cmsws_container <?php echo esc_attr('cmsws-pos-' . $word_list_position); ?>"
+        id="cmsws_container_<?php echo esc_attr($post_id); ?>">
 
-<!-- Modal -->
-<div class="cmsws-modal" id="cmws-modal" style="display:none;">
-    <div class="cmsws-modal-overlay"></div>
-    <div class="cmsws-modal-wrap">
-        <div class="cmsws-modal-header">
-            <a href="#" class="cmsws-btn-close cmsws-closemodale"><span class="dashicons dashicons-no"></span></a>
-        </div>
-        <div class="cmsws-modal-body">
-            <?php echo wp_kses($congrats, 'post'); ?>
-        </div>
-        <div class="cmsws-modal-footer">
-            <button id=btn-new-game><?php esc_html_e('New Game', 'cms-wordsearch');?></button>
+    <!-- Modal -->
+    <div class="cmsws-modal" id="cmws-modal" style="display:none;">
+        <div class="cmsws-modal-overlay"></div>
+        <div class="cmsws-modal-wrap">
+            <div class="cmsws-modal-header">
+                <div class="cmsws-btn-close" id="cmsws-closemodale"><span class="dashicons dashicons-no"></span></div>
+            </div>
+            <div class="cmsws-modal-body">
+                <?php echo wp_kses($congrats, 'post'); ?>
+            </div>
+            <div class="cmsws-modal-footer">
+                <button id="btn-new-game"><?php esc_html_e('New Game', 'cms-wordsearch');?></button>
+            </div>
         </div>
     </div>
 </div>
-
-<input type="hidden" id="cmsws_custom_words" value="<?php echo esc_html($custom_words); ?>">
-<input type="hidden" id="cmsws_allowed_chars" value="<?php echo esc_html($allowed_chars); ?>">
-<input type="hidden" id="cmsws_directions" value="<?php echo esc_html($directions); ?>">
-<input type="hidden" id="cmsws_field_size" value="<?php echo esc_html($size); ?>">
-<input type="hidden" id="cmsws_field_word_list_position" value="<?php echo esc_html($word_list_position); ?>">
+<input type="hidden" id="cmsws_custom_words_<?php echo esc_attr($post_id); ?>" value="<?php echo esc_html($custom_words); ?>">
+<input type="hidden" id="cmsws_allowed_chars_<?php echo esc_attr($post_id); ?>" value="<?php echo esc_html($allowed_chars); ?>">
+<input type="hidden" id="cmsws_directions_<?php echo esc_attr($post_id); ?>" value="<?php echo esc_html($directions); ?>">
+<input type="hidden" id="cmsws_field_size_<?php echo esc_attr($post_id); ?>" value="<?php echo esc_html($size); ?>">

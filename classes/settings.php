@@ -51,7 +51,7 @@ class Cmsws_Settings
 
         add_settings_field(
             'cmsws_game_size',
-            __('Game size', 'cms-wordsearch'),
+            __('Default Game size', 'cms-wordsearch'),
             array(self::class, 'display_field_dropdown'),
             'cmsws_settings_group',
             'cmsws_game_settings',

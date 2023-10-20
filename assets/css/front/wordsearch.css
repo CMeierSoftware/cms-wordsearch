@@ -1,27 +1,48 @@
-#cms_wordsearch_container {
+.cmsws_container {
     width: 100%;
     flex-wrap: wrap;
     display: flex;
+    max-width: unset;
+    font-size: 33px;
 }
 
-#cms_wordsearch_container.cmsws-pos-right {
+@media (max-width: 374px) {
+    .cmsws_container{
+        font-size: 16px;
+    }
+
+}
+
+@media screen and (min-width: 375px) and (max-width: 499px) {
+    .cmsws_container{
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 500px)  and (max-width: 750px){
+    .cmsws_container{
+        font-size: 30px;
+    }
+}
+
+.cmsws_container.cmsws-pos-right {
     align-items: stretch;
     flex-direction: row;
     justify-content: center;
 }
 
-#cms_wordsearch_container.cmsws-pos-left {
+.cmsws_container.cmsws-pos-left {
     align-items: stretch;
     flex-direction: row-reverse;
     justify-content: center;
 }
 
-#cms_wordsearch_container.cmsws-pos-top {
+.cmsws_container.cmsws-pos-top {
     align-items: center;
     flex-direction: column-reverse;
 }
 
-#cms_wordsearch_container.cmsws-pos-bottom {
+.cmsws_container.cmsws-pos-bottom {
     align-items: center;
     flex-direction: column;
 }
@@ -49,7 +70,7 @@
     margin: 15px;
 
     max-width: 600px;
-    width: 100%;
+    width: 80%;
     -webkit-transition: -webkit-transform 0.3s ease-out;
     -moz-transition: -moz-transform 0.3s ease-out;
     -o-transition: -o-transform 0.3s ease-out;
@@ -142,7 +163,7 @@
 #letterGridContainer {
     display: flex;
     flex-wrap: wrap;
-    padding: 1.5em;
+    padding: 0.5rem;
 }
 
 .cmsws-table {
@@ -151,18 +172,20 @@
     display: inline-block;
     line-height: normal;
 }
+
 .cmsws-table .cmsws-row {
+    max-width: 100% !important;
     text-align: center;
 }
+
 .cmsws-table .cmsws-cell {
     z-index: 6;
     border: 1px solid #d3d3d361;
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-    width: 40px;
-    height: 40px;
-    font-size: 30px;
+    max-width: 40px;
+    max-height: 40px;
     position: relative;
     transition: background 0.9s;
     cursor: pointer;

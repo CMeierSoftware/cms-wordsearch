@@ -10,12 +10,12 @@ class Cmsws_Post_Type
     {
         global $post_type;
         if ($post_type === self::POST_TYPE && ($hook_suffix === 'post.php' || $hook_suffix === 'post-new.php')) {
-            //wp_enqueue_style('cmsws-wordsearch-style-admin', plugins_url('res/admin/wordsearch-admin.css', __FILE__));
             wp_enqueue_script('cmsws-edit-post-script', CMSWS_PLUGIN_URL . '/assets/js/admin/edit-post.js', array('jquery'), false, true);
 
             $args = array(
                 'text_word_already_in_list' => __('Word is already in the list.', 'cms-wordsearch'),
                 'text_title_required' => __('A title is required', 'cms-wordsearch'),
+                'text_word_length' => __('The word is too long for this size of wordsearch.', 'cms-wordsearch'),
                 'text_word_contains_forbidden_char' => __('The word contains forbidden character.', 'cms-wordsearch'),
                 'word_seperator' => self::WORD_SEPERATOR,
             );
@@ -28,8 +28,9 @@ class Cmsws_Post_Type
     {
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, self::SHORTCODE)) {
-            wp_enqueue_script('cmsws-wordsearch-script', CMSWS_PLUGIN_URL . '/assets/js/front/wordsearch.js', array('jquery'), false, true);
-            wp_enqueue_style('cms-wordsearch-style', CMSWS_PLUGIN_URL .'/assets/css/front/wordsearch.css', array(), false);
+            $minify = current_user_can('administrator') ? '' : '.min';
+            wp_enqueue_script('cmsws-wordsearch-script', CMSWS_PLUGIN_URL . "/assets/js/front/wordsearch$minify.js", array('jquery'), false, true);
+            wp_enqueue_style('cms-wordsearch-style', CMSWS_PLUGIN_URL ."/assets/css/front/wordsearch$minify.css", array(), false);
 
             $args = array(
                 'word_seperator' => self::WORD_SEPERATOR,
@@ -152,9 +153,10 @@ class Cmsws_Post_Type
                 <label for="cmsws_show_instructions"><?php esc_html_e('Show instructions', 'cms-wordsearch') ?></label>
             </div>
             <div style="width:33%; display: inline-block;">
-                <h3><?php esc_html_e('Size', 'cms-wordsearch');?></h3>
-                <p><?php esc_html_e('Choose which size to display', 'cms-wordsearch'); ?></p>
+                <h3><?php esc_html_e('Game Size', 'cms-wordsearch');?></h3>
+                <p><?php esc_html_e('Choose the size of the square playing field.', 'cms-wordsearch'); ?></p>
                 <?php cmsws_get_template('dropdown.php', 'views/admin/', array('value' => $word_size, 'name' => 'cmsws_size', 'values' => $posible_sizes)); ?>
+                <p style="color:red;"><?php esc_html_e('A field larger than 10 could cause display problems on mobile devices.', 'cms-wordsearch'); ?></p>
 
             </div>
             <div style="width:33%; display: inline-block;">
@@ -165,13 +167,13 @@ class Cmsws_Post_Type
             <hr>
             <div>
                 <h3><?php esc_html_e('Use Global settings', 'cms-wordsearch');?></h3>
-                <p><?php esc_html_e('If you change the global settings and thsi wordsearch does not overwrite the settings, this wordsearch will change due to the global changes.', 'cms-wordsearch'); ?></p>
+                <p><?php esc_html_e('If you change the global settings and this wordsearch does not overwrite the settings, this wordsearch will change due to the global changes.', 'cms-wordsearch'); ?></p>
                 <input type="checkbox" name="cmsws_overwrite_global_settings" id="cmsws_overwrite_global_settings" <?php checked($overwrite_global_settings); ?>>
                 <label for="cmsws_overwrite_global_settings"><?php esc_html_e('Overwrite global settings', 'cms-wordsearch') ?></label>
                 <div id="globalSettingsOverwrite">
                     <div style="width:33%; display: inline-block;">
                         <h4><?php esc_html_e('Direction', 'cms-wordsearch');?></h4>
-                        <p><?php esc_html_e('Choose which size to display', 'cms-wordsearch'); ?></p>
+                        <p><?php esc_html_e('Choose direction of the words', 'cms-wordsearch'); ?></p>
                         <?php cmsws_get_template('compass.php', 'views/admin/', array('value' => $word_direction, 'name' => 'cmsws_direction'));?>
                     </div>
                     <div style="width:66%; display: inline-block;">
@@ -304,6 +306,7 @@ class Cmsws_Post_Type
         $settings['word_list_position'] = get_post_meta($post->ID, 'cmsws_word_position', true);
         $settings['instructions'] = get_post_meta($post->ID, 'cmsws_show_instructions', true) ? Cmsws_Settings::get_instructions() : '';
         $settings['congrats'] = Cmsws_Settings::get_congrats();
+        $settings['post_id'] = $post->ID;
 
         ob_start();
         cmsws_get_template('game.php', 'views/front/', $settings);

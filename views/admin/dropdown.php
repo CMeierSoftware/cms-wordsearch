@@ -13,6 +13,6 @@ foreach ($values as $key => $label) {
     );
 }
 ?>
-<select name="<?php echo esc_attr($name) ?>">
+<select id="<?php echo esc_attr($name) ?>" name="<?php echo esc_attr($name) ?>">
     <?php echo implode('', $dd_options); ?>
 </select>

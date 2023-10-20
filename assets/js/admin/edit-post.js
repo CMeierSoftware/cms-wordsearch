@@ -37,6 +37,12 @@ jQuery(document).ready(function ($) {
             return;
         }
 
+        const gameSize = $('#cmsws_size').val();
+        if (newWord.length > gameSize) {
+            alert(cmsws_admin_args.text_word_length);
+            return;
+        }
+
         let customWords = getExistingWords();
 
         if (customWords.indexOf(newWord) === -1) {
@@ -88,6 +94,24 @@ jQuery(document).ready(function ($) {
     });
 });
 
+// jQuery
+jQuery(document).ready(function ($) {
+    $('#cmsws_size').on('change', function () {
+        const selectedValue = parseInt($(this).val());
+
+        $('#entered_words li').each(function () {
+            const word = $(this).text();
+            const wordLength = word.length;
+
+            // Clear any previous classes
+            $(this).css('color', '');
+
+            if (wordLength > selectedValue) {
+                $(this).css('color', 'red');
+            }
+        });
+    });
+});
 
 
 jQuery('form#post').submit(function () {
