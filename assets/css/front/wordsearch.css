@@ -99,7 +99,9 @@
 .cmsws-modal-body {
     padding: 20px;
 }
-
+.cmsws-modal-body button {
+    padding: 5px 15px;
+}
 .cmsws-modal-footer {
     padding: 15px 20px;
 }
