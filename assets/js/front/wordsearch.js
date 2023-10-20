@@ -235,7 +235,7 @@
     };
 
     Wordsearch.prototype.reSize = function () {
-        const maxCellSize = 40;  // Maximum cell size in pixels
+        const maxCellSize = 50;  // Maximum cell size in pixels
         const containerWidth = this.$ws_container.width() * 0.95;
         const cellWidth = Math.min(containerWidth / this.field_size, maxCellSize);
         this.$ws_container.find('.cmsws-cell').css({
