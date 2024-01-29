@@ -17,7 +17,7 @@
     /**
      *
      * @param {*} max
-     * @returns a random number betwen 0 (inclusive) and max(exclusive)
+     * @returns a random number between 0 (inclusive) and max(exclusive)
      */
     function getRandomIndex(max) {
         const cryptoArray = new Uint32Array(1);
@@ -210,10 +210,10 @@
         this.firstClickedCell = null;
         this.found_words = 0;
 
-        this.words = $('#cmsws_custom_words_' + id).val().split(cmsws_front_args.word_seperator);
+        this.words = $('#cmsws_custom_words_' + id).val().split(cmsws_front_args.word_separator);
         this.words = this.words.filter(element => element !== "" && element.length <= this.field_size);
 
-        const directionNames = $('#cmsws_directions_' + id).val().split(cmsws_front_args.word_seperator);
+        const directionNames = $('#cmsws_directions_' + id).val().split(cmsws_front_args.word_separator);
         this.directions = directionNames.map(direction => {
             const directionMap = {
                 'east': { x: 1, y: 0 },

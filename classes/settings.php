@@ -1,8 +1,8 @@
-<?php
+<?php 
+declare(strict_types=1);
 
-class Cmsws_Settings
+class CmswsSettings
 {
-
     public static function register(): void
     {
         register_setting('cmsws_settings_group', 'cmsws_allowed_chars');
@@ -14,10 +14,10 @@ class Cmsws_Settings
         add_settings_section(
             'cmsws_game_settings',
             __('Global Game Settings', 'cms-wordsearch'),
-            function () {
+            static function () {
                 echo sprintf(
                     '<p>%s</p>',
-                    esc_html__("Define the behavior when generating new wordsearchs.", 'cms-wordsearch')
+                    esc_html__('Define the behavior when generating new wordsearches.', 'cms-wordsearch')
                 );
             },
             'cmsws_settings_group'
@@ -26,50 +26,50 @@ class Cmsws_Settings
         add_settings_field(
             'cmsws_allowed_chars',
             __('Allowed Characters', 'cms-wordsearch'),
-            array(self::class, 'display_field_allowed_character'),
+            [self::class, 'display_field_allowed_character'],
             'cmsws_settings_group',
             'cmsws_game_settings',
-            array(
+            [
                 'label_for' => 'cmsws_allowed_chars',
                 'value' => self::get_allowed_chars(),
                 'class' => '',
-            )
+            ]
         );
 
         add_settings_field(
             'cmsws_allowed_directions',
             __('Allowed Directions', 'cms-wordsearch'),
-            array(self::class, 'display_field_allowed_directions'),
+            [self::class, 'display_field_allowed_directions'],
             'cmsws_settings_group',
             'cmsws_game_settings',
-            array(
+            [
                 'label_for' => 'cmsws_allowed_directions',
                 'value' => self::get_allowed_directions(),
                 'class' => '',
-            )
+            ]
         );
 
         add_settings_field(
             'cmsws_game_size',
             __('Default Game size', 'cms-wordsearch'),
-            array(self::class, 'display_field_dropdown'),
+            [self::class, 'display_field_dropdown'],
             'cmsws_settings_group',
             'cmsws_game_settings',
-            array(
+            [
                 'label_for' => 'cmsws_game_size',
                 'value' => self::get_game_size(),
                 'values' => array_combine(range(5, 25), range(5, 25)),
                 'class' => '',
-            )
+            ]
         );
 
         add_settings_section(
             'cmsws_messages',
             __('Messages', 'cms-wordsearch'),
-            function () {
+            static function () {
                 echo sprintf(
                     '<p>%s</p>',
-                    esc_html__('Create Messages to improve the gameplay.', 'cms-wordsearch')
+                    esc_html__('Create Messages to improve the game play.', 'cms-wordsearch')
                 );
             },
             'cmsws_settings_group'
@@ -78,35 +78,35 @@ class Cmsws_Settings
         add_settings_field(
             'cmsws_instructions',
             __('Tutorial (How to play)', 'cms-wordsearch'),
-            array(self::class, 'display_field_tinymce'),
+            [self::class, 'display_field_tinymce'],
             'cmsws_settings_group',
             'cmsws_messages',
-            array(
+            [
                 'label_for' => 'cmsws_instructions',
-                'value'=> self::get_instructions(),
+                'value' => self::get_instructions(),
                 'class' => '',
-            )
+            ]
         );
 
         add_settings_field(
             'cmsws_congrats',
             __('Congratulations', 'cms-wordsearch'),
-            array(self::class, 'display_field_tinymce'),
+            [self::class, 'display_field_tinymce'],
             'cmsws_settings_group',
             'cmsws_messages',
-            array(
+            [
                 'label_for' => 'cmsws_congrats',
-                'value'=> self::get_congrats(),
+                'value' => self::get_congrats(),
                 'class' => '',
-            )
+            ]
         );
     }
 
     public static function display_field_allowed_character(array $args): void
     {
         ?>
-            <input type="text" class='large-text' value='<?php echo esc_html($args['value']) ?>'
-                name="<?php echo esc_html($args['label_for']) ?>">
+            <input type="text" class='large-text' value='<?php echo esc_html($args['value']); ?>'
+                name="<?php echo esc_html($args['label_for']); ?>">
             <p class="description">
                 <?php esc_html_e('Select allowed Characters', 'cms-wordsearch'); ?>
             </p>
@@ -118,23 +118,23 @@ class Cmsws_Settings
         echo wp_editor(
             $args['value'],
             $args['label_for'],
-            array(
+            [
                 'wpautop' => true,
-                'tinymce' => true
-            )
+                'tinymce' => true,
+            ]
         );
     }
 
     public static function display_field_allowed_directions(array $args): void
     {
-        $args = array('value' => $args['value'], 'name' => $args['label_for']);
+        $args = ['value' => $args['value'], 'name' => $args['label_for']];
 
         cmsws_get_template('compass.php', 'views/admin/', $args);
     }
 
     public static function display_field_dropdown(array $args): void
     {
-        $args = array('value' => $args['value'], 'name' => $args['label_for'], 'values' => $args['values']);
+        $args = ['value' => $args['value'], 'name' => $args['label_for'], 'values' => $args['values']];
 
         cmsws_get_template('dropdown.php', 'views/admin/', $args);
     }
@@ -162,9 +162,9 @@ class Cmsws_Settings
             <form action="options.php" method="post">
                 <?php
                 do_settings_sections('cmsws_settings_group');
-                settings_fields('cmsws_settings_group');
-                submit_button(__('Save Settings', 'cms-wordsearch'));
-                ?>
+        settings_fields('cmsws_settings_group');
+        submit_button(__('Save Settings', 'cms-wordsearch'));
+        ?>
             </form>
         </div>
         <?php
@@ -172,12 +172,12 @@ class Cmsws_Settings
 
     public static function get_allowed_chars(): string
     {
-        return get_option('cmsws_allowed_chars', implode(array_merge(range('A', 'Z'), range('a', 'z'))));
+        return get_option('cmsws_allowed_chars', implode('', array_merge(range('A', 'Z'), range('a', 'z'))));
     }
 
     public static function get_allowed_directions(): array
     {
-        return get_option('cmsws_allowed_directions', array('north', 'northwest', 'south', 'southeast', 'east', 'northeast'));
+        return get_option('cmsws_allowed_directions', ['north', 'northwest', 'south', 'southeast', 'east', 'northeast']);
     }
 
     public static function get_game_size(): int
@@ -194,5 +194,4 @@ class Cmsws_Settings
     {
         return get_option('cmsws_congrats', __('Congratulations! You have completed the puzzle.', 'cws-wordsearch'));
     }
-
 }

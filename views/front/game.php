@@ -1,4 +1,5 @@
-<?php
+<?php 
+declare(strict_types=1);
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -24,7 +25,7 @@ if (!empty($instructions)) {
                 <?php echo wp_kses($congrats, 'post'); ?>
             </div>
             <div class="cmsws-modal-footer">
-                <button id="btn-new-game"><?php esc_html_e('New Game', 'cms-wordsearch');?></button>
+                <button id="btn-new-game"><?php esc_html_e('New Game', 'cms-wordsearch'); ?></button>
             </div>
         </div>
     </div>

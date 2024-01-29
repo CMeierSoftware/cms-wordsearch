@@ -32,7 +32,7 @@ jQuery(document).ready(function ($) {
     function addWordToList(newWord) {
         if (!newWord) return;
 
-        if (newWord.includes(cmsws_admin_args.word_seperator)) {
+        if (newWord.includes(cmsws_admin_args.word_separator)) {
             alert(cmsws_admin_args.text_word_contains_forbidden_char);
             return;
         }
@@ -47,7 +47,7 @@ jQuery(document).ready(function ($) {
 
         if (customWords.indexOf(newWord) === -1) {
             customWords.push(newWord);
-            customWordsInput.val(customWords.join(cmsws_admin_args.word_seperator));
+            customWordsInput.val(customWords.join(cmsws_admin_args.word_separator));
 
             const listItem = $('<li></li>');
             listItem.html(`${newWord} <button class="remove-word"><span class="dashicons dashicons-trash"></span></button>`);
@@ -72,13 +72,13 @@ jQuery(document).ready(function ($) {
 
         if (index !== -1) {
             customWords.splice(index, 1);
-            customWordsInput.val(customWords.join(cmsws_admin_args.word_seperator));
+            customWordsInput.val(customWords.join(cmsws_admin_args.word_separator));
         }
 
         $(`#entered_words li:contains('${word}')`).remove();
     }
 
-    function getExistingWords() { return customWordsInput.val().split(cmsws_admin_args.word_seperator);}
+    function getExistingWords() { return customWordsInput.val().split(cmsws_admin_args.word_separator);}
 
     addWordButton.on('click', function () {
         addWordToList(customWordInput.val().trim());

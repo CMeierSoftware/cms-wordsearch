@@ -1,4 +1,5 @@
-<?php
+<?php 
+declare(strict_types=1);
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -13,6 +14,6 @@ foreach ($values as $key => $label) {
     );
 }
 ?>
-<select id="<?php echo esc_attr($name) ?>" name="<?php echo esc_attr($name) ?>">
+<select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>">
     <?php echo implode('', $dd_options); ?>
 </select>
