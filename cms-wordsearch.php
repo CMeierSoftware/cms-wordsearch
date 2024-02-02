@@ -45,6 +45,8 @@ add_shortcode(CmswsPostType::SHORTCODE, [CmswsPostType::class, 'do_shortcode']);
 add_action('admin_init', [CmswsSettings::class, 'register']);
 
 add_action('admin_menu', 'cmsws_create_admin_menu');
+add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'cmsws_plugin_action_links');
+
 
 function cmsws_activate_plugin() {}
 
@@ -66,12 +68,12 @@ function cmsws_create_admin_menu()
  * Get other templates (e.g. my account) passing attributes and including the file.
  *
  * @param string $template_name template Name
- * @param array $args extra arguments(default: array())
  * @param string $template_path path of template provided (default: '')
+ * @param array $args extra arguments(default: array())
  */
-function cmsws_get_template($template_name, $template_path, $args = [])
+function cmsws_get_template(string $template_name, string $template_path, array $args = [])
 {
-    if (!empty($args) && is_array($args)) {
+    if (!empty($args)) {
         extract($args);
     }
 
@@ -85,4 +87,12 @@ function cmsws_get_template($template_name, $template_path, $args = [])
     }
 
     include $located;
+}
+
+function cmsws_plugin_action_links(array $links): array
+{
+    $url = admin_url('edit.php?post_type='.CmswsPostType::POST_TYPE.'&page=cms-wordsearch-settings');
+    $settings_link = '<a href="'.esc_url($url).'">'. __('Settings', 'cms-wordsearch') .'</a>';
+    array_unshift($links, $settings_link);
+    return $links;
 }
